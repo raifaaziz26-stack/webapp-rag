@@ -3,16 +3,49 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
+const path = require('path');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-// Pastikan URL ini sama persis dengan Webhook URL di n8n (mode: "Respond via Respond to Webhook")
-const N8N_WEBHOOK_URL = 'https://buford-tzaristic-elliana.ngrok-free.dev/webhook/n8n-endpoint';
+// Use environment variable for webhook URL with fallback to default
+const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL || 'https://buford-tzaristic-elliana.ngrok-free.dev/webhook/n8n-endpoint';
+
+// Add middleware to handle potential CORS if needed
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
+
+// Serve the main page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
+    if (err) {
+      console.error('Error serving index.html:', err);
+      res.status(500).send('Error loading the application');
+    }
+  });
+});
+
+// Handle all other routes by serving index.html (for SPA routing)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
+    if (err) {
+      console.error('Error serving index.html for route:', req.originalUrl);
+      res.status(500).send('Error loading the application');
+    }
+  });
+});
 
 // Endpoint yang dipanggil dari frontend (index.html)
 app.post('/ask', async (req, res) => {
@@ -82,7 +115,12 @@ app.post('/ask', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`🚀 WebApp berjalan di http://localhost:${port}`);
-  console.log(`🔗 Webhook n8n: ${N8N_WEBHOOK_URL}`);
-});
+// Only start server if running locally (not in serverless environment)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(port, () => {
+    console.log(`🚀 WebApp berjalan di http://localhost:${port}`);
+    console.log(`🔗 Webhook n8n: ${N8N_WEBHOOK_URL}`);
+  });
+}
+
+module.exports = app;
