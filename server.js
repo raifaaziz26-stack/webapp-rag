@@ -9,7 +9,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Use environment variable for webhook URL with fallback to default
-const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL || 'https://buford-tzaristic-elliana.ngrok-free.dev/webhook/n8n-endpoint';
+const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL || 'https://n8n.raifa.site/webhook/n8n-endpoint';
 
 // Add middleware to handle potential CORS if needed
 app.use((req, res, next) => {
@@ -37,8 +37,18 @@ app.get('/', (req, res) => {
   });
 });
 
+// Serve the dashboard page
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'), (err) => {
+    if (err) {
+      console.error('Error serving dashboard.html:', err);
+      res.status(500).send('Error loading the dashboard');
+    }
+  });
+});
+
 // Handle all other routes by serving index.html (for SPA routing)
-app.get('*', (req, res) => {
+app.get(/^\/(?!api|dashboard).*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
     if (err) {
       console.error('Error serving index.html for route:', req.originalUrl);
@@ -115,9 +125,9 @@ app.post('/ask', async (req, res) => {
   }
 });
 
-// Only start server if running locally (not in serverless environment)
+// Hanya jalankan listen saat di lingkungan lokal
 if (process.env.NODE_ENV !== 'production') {
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     console.log(`🚀 WebApp berjalan di http://localhost:${port}`);
     console.log(`🔗 Webhook n8n: ${N8N_WEBHOOK_URL}`);
   });

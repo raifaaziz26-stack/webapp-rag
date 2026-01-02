@@ -1,18 +1,24 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Assistant Cepat</title>
+    <title>AI Assistant | Modern Chat Interface</title>
     <!-- Memuat Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Menghubungkan CSS kustom -->
     <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome untuk ikon tambahan -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
+                    },
                     colors: {
                         'primary': '#4f46e5', // Indigo 600
                         'primary-dark': '#7c3aed', // Violet 600
@@ -24,64 +30,380 @@
             }
         }
     </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
+        .chat-bubble-user {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+        }
+        .chat-bubble-ai {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+        }
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #94a3b8;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+
+        #clearChatBtn {
+            background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+            color: white !important;
+            border: 2px solid #fca5a5 !important;
+            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4) !important;
+        }
+
+        #clearChatBtn:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+            box-shadow: 0 6px 12px rgba(239, 68, 68, 0.6) !important;
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
-<body class="bg-bg-main min-h-screen flex flex-col antialiased font-sans">
-
-    <!-- Kontainer Utama Aplikasi -->
-    <div class="main-container flex flex-col flex-grow w-full mx-auto shadow-lg">
-
-        <!-- Header -->
-        <header class="p-4 sm:p-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg">
+<body class="bg-bg-main min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-md">
+        <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-bold tracking-tight">Assistant Raifa</h1>
-                <button id="clearChatBtn" class="clear-chat-btn" title="Clear Chat">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-broom">
-                        <path d="m18 9 1.33-3.33a1 1 0 0 0-.82-1.27 5 5 0 0 0-9 5.5 1 1 0 0 0 1.28 1.26L15 12"/><path d="m16 11 3.5-3.5"/><path d="m15 17 3.5-3.5"/><path d="M12 22a10 10 0 1 1 7.13-17.13 1 1 0 0 1 1.77 1.77A8 8 0 0 0 12 22z"/>
-                    </svg>
-                </button>
-            </div>
-            <p class="text-center text-indigo-200 text-sm mt-2">AI Assistant powered by n8n</p>
-        </header>
-
-        <!-- Area Pesan (Chat) -->
-        <main id="chatArea" class="flex-grow overflow-y-auto p-4 space-y-4">
-            <!-- Pesan Selamat Datang -->
-            <div class="ai-message">
-                <div class="message-bubble">
-                    <p class="font-semibold text-indigo-600 mb-1">👋 Halo! Selamat Datang!</p>
-                    <p>Saya adalah Asisten AI yang dibuat sepenuh hati oleh raifa</p>
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white/20 p-1.5 rounded-lg">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-bold">Raifa Assistant</h1>
+                        <p class="text-indigo-200 text-xs hidden sm:block">AI Assistant powered by n8n</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="hidden md:flex items-center space-x-2">
+                        <span class="w-2 h-2 bg-green-400 rounded-full pulse"></span>
+                        <span class="text-xs">Online</span>
+                    </div>
                 </div>
             </div>
-            <!-- Pesan-pesan dinamis akan ditambahkan di sini oleh script.js -->
-        </main>
+        </div>
+    </header>
 
-        <!-- Input Area (Selalu di Bawah) -->
-        <div class="input-area bg-white p-4 border-t border-gray-200">
-            <div class="input-container max-w-3xl mx-auto">
+    <!-- Main Content -->
+    <div class="flex-grow flex flex-col container mx-auto px-4 py-6 max-w-4xl w-full">
+        <!-- Welcome Section -->
+        <div class="text-center mb-8">
+            <div class="floating">
+                <h2 class="text-3xl md:text-4xl font-bold text-light mb-4">How can I help you today?</h2>
+                <p class="text-gray-light max-w-lg mx-auto">Ask me anything - I'm here to assist with your questions and tasks.</p>
+            </div>
+        </div>
 
-                <textarea
-                    id="userInput"
-                    rows="1"
-                    class="flex-grow resize-none focus:outline-none placeholder-gray-500 max-h-40"
-                    placeholder="Tulis pesan (tekan Enter untuk kirim)..."
-                ></textarea>
+        <!-- Stats/Features Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="gradient-card rounded-2xl shadow-lg p-6 border border-gray-light/20 hover:shadow-xl transition transform hover:-translate-y-1">
+                <div class="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center mb-4">
+                    <i class="fas fa-brain text-indigo-400 text-xl"></i>
+                </div>
+                <h3 class="font-semibold text-lg text-light mb-2">AI-Powered</h3>
+                <p class="text-gray-light text-sm">Powered by advanced AI to provide accurate answers</p>
+            </div>
 
-                <button
-                    id="sendBtn"
-                    class="send-btn-animation"
-                    title="Kirim Pesan"
-                >
-                    <!-- Ikon Kirim (Send) -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send">
-                        <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
-                    </svg>
+            <div class="gradient-card rounded-2xl shadow-lg p-6 border border-gray-light/20 hover:shadow-xl transition transform hover:-translate-y-1">
+                <div class="w-12 h-12 bg-violet-500/20 rounded-xl flex items-center justify-center mb-4">
+                    <i class="fas fa-bolt text-violet-400 text-xl"></i>
+                </div>
+                <h3 class="font-semibold text-lg text-light mb-2">Fast Response</h3>
+                <p class="text-gray-light text-sm">Get answers in seconds with our optimized system</p>
+            </div>
+
+            <div class="gradient-card rounded-2xl shadow-lg p-6 border border-gray-light/20 hover:shadow-xl transition transform hover:-translate-y-1">
+                <div class="w-12 h-12 bg-pink-500/20 rounded-xl flex items-center justify-center mb-4">
+                    <i class="fas fa-globe text-pink-400 text-xl"></i>
+                </div>
+                <h3 class="font-semibold text-lg text-light mb-2">Always Available</h3>
+                <p class="text-gray-light text-sm">24/7 availability to assist you anytime</p>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="flex-grow bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col border border-gray-200">
+            <div class="border-b border-gray-200 px-6 py-4 bg-gray-50 flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="w-3 h-3 bg-green-500 rounded-full mr-2 pulse"></div>
+                    <span class="text-gray-700 font-medium">AI Assistant</span>
+                    <span class="ml-2 text-sm text-gray-500">Just now</span>
+                </div>
+                <button id="clearChatBtn" class="bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 text-white p-2 rounded-full transition shadow-lg hover:shadow-xl border-2 border-red-300">
+                    <i class="fas fa-broom"></i>
                 </button>
             </div>
-            <p class="text-xs text-gray-500 text-center mt-3">Powered by n8n & Gemini</p>
+
+            <main id="chatArea" class="flex-grow overflow-y-auto p-6 space-y-6 flex flex-col">
+                <!-- Pesan Selamat Datang -->
+                <div class="ai-message flex">
+                    <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0">
+                        <i class="fas fa-robot text-indigo-600"></i>
+                    </div>
+                    <div class="chat-bubble-ai rounded-2xl px-5 py-3 max-w-3xl shadow-sm">
+                        <p class="font-semibold text-indigo-600 mb-1">👋 Halo! Selamat Datang!</p>
+                        <p>Saya adalah Asisten AI yang dibuat sepenuh hati oleh Raifa. Saya siap membantu Anda dengan pertanyaan dan tugas apapun. Apa yang ingin Anda ketahui hari ini?</p>
+                    </div>
+                </div>
+                <!-- Pesan-pesan dinamis akan ditambahkan di sini oleh script.js -->
+            </main>
+
+            <!-- Input Area -->
+            <div class="border-t border-gray-200 p-4 bg-gray-50">
+                <form id="messageForm" class="flex">
+                    <div class="flex-grow bg-white rounded-xl overflow-hidden shadow-sm border border-gray-300 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500">
+                        <textarea
+                            id="userInput"
+                            rows="1"
+                            class="w-full px-4 py-3 focus:outline-none resize-none max-h-32"
+                            placeholder="Ketik pesan Anda di sini..."
+                        ></textarea>
+                    </div>
+                    <button
+                        type="submit"
+                        id="sendBtn"
+                        class="ml-3 bg-primary hover:bg-indigo-700 text-white p-3 rounded-xl transition flex items-center justify-center"
+                        title="Kirim Pesan"
+                    >
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+                <p class="text-xs text-gray-500 text-center mt-3">Powered by n8n & Gemini AI</p>
+            </div>
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="py-6 text-center text-gray-500 text-sm">
+        <p>© 2025 Raifa Assistant. All rights reserved.</p>
+    </footer>
+
     <!-- Menghubungkan JavaScript -->
     <script src="script.js"></script>
+    <script>
+        // Update script untuk fitur tambahan
+        document.addEventListener('DOMContentLoaded', () => {
+            const messageForm = document.getElementById('messageForm');
+            const userInput = document.getElementById('userInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const chatArea = document.getElementById('chatArea');
+            const clearChatBtn = document.getElementById('clearChatBtn');
+
+            // Fungsi untuk menambahkan pesan ke area chat
+            const addMessage = (text, sender) => {
+                const messageContainer = document.createElement('div');
+                messageContainer.className = `flex mb-6 ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+
+                // Avatars
+                if (sender === 'ai') {
+                    const avatar = document.createElement('div');
+                    avatar.className = 'w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-pink-400 flex items-center justify-center mr-3 flex-shrink-0';
+                    avatar.innerHTML = '<i class="fas fa-robot text-white"></i>';
+                    messageContainer.appendChild(avatar);
+                }
+
+                const messageBubble = document.createElement('div');
+                messageBubble.className = `${sender === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'} rounded-2xl px-5 py-3 max-w-3xl shadow-sm text-white`;
+
+                // Sanitasi teks untuk mencegah XSS sederhana (walaupun ini bukan solusi lengkap)
+                const safeText = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+                // Mengganti baris baru (\n) dengan <br> agar respons multi-baris terlihat bagus
+                const formattedText = safeText.replace(/\n/g, '<br>');
+
+                messageBubble.innerHTML = formattedText;
+
+                // Tambahkan avatar untuk user
+                if (sender === 'user') {
+                    const userAvatar = document.createElement('div');
+                    userAvatar.className = 'w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center ml-3 flex-shrink-0';
+                    userAvatar.innerHTML = '<i class="fas fa-user text-gray-600"></i>';
+                    messageContainer.appendChild(messageBubble);
+                    messageContainer.appendChild(userAvatar);
+                } else {
+                    messageContainer.appendChild(messageBubble);
+                }
+
+                chatArea.appendChild(messageContainer);
+                // Otomatis scroll ke bawah
+                chatArea.scrollTop = chatArea.scrollHeight;
+            };
+
+            // Fungsi untuk menampilkan indikator mengetik
+            const showTypingIndicator = () => {
+                const typingContainer = document.createElement('div');
+                typingContainer.className = 'ai-message flex mb-6';
+                typingContainer.id = 'typing-indicator';
+
+                const avatar = document.createElement('div');
+                avatar.className = 'w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0';
+                avatar.innerHTML = '<i class="fas fa-robot text-indigo-600"></i>';
+                typingContainer.appendChild(avatar);
+
+                const bubble = document.createElement('div');
+                bubble.className = 'chat-bubble-ai rounded-2xl px-5 py-3 max-w-3xl shadow-sm flex items-center';
+                bubble.innerHTML = `
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                `;
+
+                typingContainer.appendChild(bubble);
+                chatArea.appendChild(typingContainer);
+                chatArea.scrollTop = chatArea.scrollHeight;
+            };
+
+            // Fungsi untuk menghapus indikator mengetik
+            const hideTypingIndicator = () => {
+                const indicator = document.getElementById('typing-indicator');
+                if (indicator) {
+                    indicator.remove();
+                }
+            };
+
+            // Fungsi utama untuk mengirim pesan
+            const handleSend = async (e) => {
+                e.preventDefault();
+                const text = userInput.value.trim();
+                if (!text) return;
+
+                // 1. Tambahkan pesan user ke UI
+                addMessage(text, 'user');
+
+                // Reset input
+                userInput.value = '';
+                adjustTextareaHeight();
+
+                // Nonaktifkan tombol dan tambahkan indikator loading
+                sendBtn.disabled = true;
+                sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                // Tampilkan indikator mengetik
+                showTypingIndicator();
+
+                try {
+                    // 🔥 Kirim pesan ke server.js endpoint /ask
+                    const response = await fetch('/ask', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: text })
+                    });
+
+                    // Sembunyikan indikator mengetik
+                    hideTypingIndicator();
+
+                    // Cek status HTTP
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(`Server Error (${response.status}): ${errorData.error || errorData.detail}`);
+                    }
+
+                    const result = await response.json();
+
+                    // Logika server.js mengembalikan { success: true, reply: "..." }
+                    if (result.success && result.reply) {
+                        // 2. Tambahkan jawaban dari server (n8n) ke UI
+                        addMessage(result.reply, 'ai');
+                    } else {
+                        console.error("Respons berhasil, tapi tidak ada properti 'reply':", result);
+                        addMessage("⚠️ Respons tidak terformat dengan benar dari server.", 'ai');
+                    }
+
+                } catch (err) {
+                    console.error('❌ Error saat memproses chat:', err);
+                    // Sembunyikan indikator mengetik jika terjadi error
+                    hideTypingIndicator();
+                    addMessage(`❌ Terjadi error koneksi atau server: ${err.message || 'Cek console server/browser Anda.'}`, 'ai');
+                }
+
+                // Aktifkan kembali tombol
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            };
+
+            // Fungsi untuk membersihkan chat
+            const clearChat = () => {
+                if (confirm('Apakah Anda yakin ingin menghapus semua pesan?')) {
+                    // Kosongkan area chat
+                    chatArea.innerHTML = '';
+
+                    // Tambahkan pesan selamat datang kembali
+                    const welcomeContainer = document.createElement('div');
+                    welcomeContainer.className = 'ai-message flex';
+                    welcomeContainer.innerHTML = `
+                        <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0">
+                            <i class="fas fa-robot text-indigo-600"></i>
+                        </div>
+                        <div class="chat-bubble-ai rounded-2xl px-5 py-3 max-w-3xl shadow-sm">
+                            <p class="font-semibold text-indigo-600 mb-1">👋 Halo! Selamat Datang!</p>
+                            <p>Saya adalah Asisten AI yang dibuat sepenuh hati oleh Raifa. Saya siap membantu Anda dengan pertanyaan dan tugas apapun. Apa yang ingin Anda ketahui hari ini?</p>
+                        </div>
+                    `;
+                    chatArea.appendChild(welcomeContainer);
+                }
+            };
+
+            // Fungsi untuk mengatur tinggi textarea secara otomatis
+            const adjustTextareaHeight = () => {
+                userInput.style.height = 'auto';
+                userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+            };
+
+            // Event Listeners
+            messageForm.addEventListener('submit', handleSend);
+            document.getElementById('clearChatBtn').addEventListener('click', clearChat);
+
+            userInput.addEventListener('keydown', (e) => {
+                // Kirim jika Enter ditekan TANPA Shift
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend(new Event('submit'));
+                }
+            });
+
+            userInput.addEventListener('input', adjustTextareaHeight);
+            adjustTextareaHeight();
+        });
+    </script>
 </body>
 </html>
